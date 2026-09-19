@@ -7,7 +7,9 @@ authors = [
     { name = "Sebastian Król" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "scipy>=1.18.1",
+]
 
 [build-system]
 requires = ["uv_build>=0.12.1,<0.13.0"]
