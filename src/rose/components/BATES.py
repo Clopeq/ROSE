@@ -3,29 +3,7 @@ from scipy.constants import pi
 
 class BATES(Component):
 # ------------------------- PRIVATE ATTRIBUTES -------------------------
-    _initial_segment_length   = None  # m, Length of the grain segment
-    _segment_length   = None 
-    _initial_outside_diameter = None  # m, Outside diameter of grain segment
-    _outside_diameter  = None
-    _initial_port_diameter    = None  # m, Inside diameter of grain segment
-    _port_diameter    = None
-    _number_of_segments       = None  #     Number of grain segments
-    _initial_segment_spacing  = 0     # m, Spacing inbetween grain segments, defaults to 0 mm
-    _segment_spacing  = 0 
-
-    _burn_distance = 0     # m,  Burn distance
-    _burning_area  = None  # m2, Burning area
-
-    _input_ports: tuple[str, ...] = ("regression_rate")
-    _output_ports: dict = {
-        "segment_length":     None,
-        "port_diameter":      None,
-        "outside_diameter":   None,
-        "number_of_segments": None,
-        "segment_spacing":    None,
-        "burn_distance":      None,
-        "burning_area":       None
-    }
+    _input_ports: tuple[str, ...] = ("regression_rate",)
 
     def __init__(self,
             segment_length:     float, 
@@ -62,19 +40,21 @@ class BATES(Component):
         self._burn_distance = 0
         self._burning_area  = self._calculate_burning_area()
 
-        self._output_ports["segment_length"]     = self._segment_length
-        self._output_ports["port_diameter"]      = self._port_diameter
-        self._output_ports["outside_diameter"]   = self._outside_diameter
-        self._output_ports["number_of_segments"] = self._number_of_segments
-        self._output_ports["segment_spacing"]    = self._segment_spacing
-        self._output_ports["burn_distance"]      = self._burn_distance
-        self._output_ports["burning_area"]       = self._burning_area
+        self._output_ports: dict = {
+            "segment_length":     self._segment_length,
+            "port_diameter":      self._port_diameter,
+            "outside_diameter":   self._outside_diameter,
+            "number_of_segments": self._number_of_segments,
+            "segment_spacing":    self._segment_spacing,
+            "burn_distance":      self._burn_distance,
+            "burning_area":       self._burning_area
+        }
 
 # ------------------------- PRIVATE METHODS -------------------------
 
     def _calculate_burning_area(self, burn_distance: float = 0) -> float:
         a0 = -6 * burn_distance**2
-        a1 = burn_distance * (2*self._segment_lengt - 4*self._port_diameter)
+        a1 = burn_distance * (2*self._segment_length - 4*self._port_diameter)
         a2 = self._port_diameter + self._segment_length
         a3 = (self._outside_diameter**2 - self._port_diameter**2)/2
         Ab = self._number_of_segments*pi * (a0 + a1 + a2 + a3)
@@ -91,7 +71,7 @@ class BATES(Component):
 
         # Initialize to 0 in order to evaluate some outputs
         #  on the first pass of the main simulation loop
-        if not "regression_rate" in inputs.keys:
+        if not "regression_rate" in inputs.keys():
             inputs["regression_rate"] = 0      
         elif not type(inputs["regression_rate"]) in [float, int]:
             raise TypeError(f"Regressiuon rate has to be an float. Regression rate: {inputs["regression_rate"]}")   
@@ -116,7 +96,7 @@ class BATES(Component):
 
         # Initialize to 0 in order to evaluate some outputs
         #  on the first pass of the main simulation loop
-        if not "regression_rate" in inputs.keys:
+        if not "regression_rate" in inputs.keys():
             inputs["regression_rate"] = 0   
         elif not type(inputs["regression_rate"]) in [float, int]:
             raise TypeError(f"Regressiuon rate has to be an float. Regression rate: {inputs["regression_rate"]}")   
