@@ -82,10 +82,23 @@ class BATES(Component):
 
 
 # ------------------------- PUBLIC METHODS -------------------------
-    def evaluate(self, time_step: float, regression_rate: float = 0):
+    def evaluate(self, time_step: float, inputs: dict = {}) -> dict:
         """ Evaluate the value of outputs but do not integrate (dont increase burn distance) """
 
-        burn_distance = self._burn_distance + regression_rate*time_step
+        # Check inputs here
+        # Initialize values of each input
+        # Initialize to None if no reasonable initial value makes sense
+
+        # Initialize to 0 in order to evaluate some outputs
+        #  on the first pass of the main simulation loop
+        if not "regression_rate" in inputs.keys:
+            inputs["regression_rate"] = 0      
+        elif not type(inputs["regression_rate"]) in [float, int]:
+            raise TypeError(f"Regressiuon rate has to be an float. Regression rate: {inputs["regression_rate"]}")   
+        elif inputs["regression_rate"] < 0:
+            raise ValueError(f"Regression rate cannot be negative. Regression rate: {inputs["regression_rate"]}")
+
+        burn_distance = self._burn_distance + inputs["regression_rate"]*time_step
         self._burning_area = self._calculate_burning_area(burn_distance)
 
         self._output_ports["segment_length"]     = self._segment_length
@@ -96,13 +109,28 @@ class BATES(Component):
         self._output_ports["burn_distance"]      = self._burn_distance
         self._output_ports["burning_area"]       = self._burning_area
 
-    def advance(self, time_step: float, regression_rate: float = 0):
-        """ Evaluate the value of outputs and integrate (change burn distance) """
-        self._burn_distance += regression_rate * time_step
+        return self._output_ports
 
-        # regression rate is set to zero to correctly evaluate burning area. 
+    def advance(self, time_step: float, inputs: dict = {}) -> dict:
+        """ Evaluate the value of outputs and integrate (change burn distance) """
+
+        # Initialize to 0 in order to evaluate some outputs
+        #  on the first pass of the main simulation loop
+        if not "regression_rate" in inputs.keys:
+            inputs["regression_rate"] = 0   
+        elif not type(inputs["regression_rate"]) in [float, int]:
+            raise TypeError(f"Regressiuon rate has to be an float. Regression rate: {inputs["regression_rate"]}")   
+        elif inputs["regression_rate"] < 0:
+            raise ValueError(f"Regression rate cannot be negative. Regression rate: {inputs["regression_rate"]}")
+        
+        self._burn_distance += inputs["regression_rate"] * time_step
+
+        # regression rate is set to zero to correctly evaluate burning area inside of evaluate(). 
         # The integrated burn distance is calculated above and should not be overwritten in evaluate()
-        self.evaluate(time_step, 0) 
+        inputs["regression_rate"] = 0
+        self.evaluate(time_step, inputs) 
+         
+        return self._output_ports
 
     def read_port(self, port: str):
         if not port in self._output_ports:
