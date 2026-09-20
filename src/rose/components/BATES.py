@@ -133,6 +133,7 @@ class BATES(Component):
         return self._output_ports
 
     def read_port(self, port: str):
+        """ return the values of the component's ports """
         if not port in self._output_ports:
             raise ValueError(f"Cannot read from port: {port}. It is not a valid output port for this compoenent!")
         return self._output_ports[port]

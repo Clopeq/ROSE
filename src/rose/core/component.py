@@ -20,9 +20,9 @@ class Component(ABC):
         """ Evry child class must implement this """
 
     @property
-    def input_ports(self):
+    def input_ports(self) -> dict:
         return self._input_ports
 
     @property
-    def output_ports(self):
+    def output_ports(self) -> dict:
         return self._output_ports
