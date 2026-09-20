@@ -12,13 +12,10 @@ class Connection:
 
 class Graph:
     # graph should have all of the components and their connections inside
-
-    _components: list[Component] = []
-    _connections: list[Connection] = []
-    _open_ports: dict = {}
-
     def __init__(self):
-        pass
+        self._components: list[Component] = []
+        self._connections: list[Connection] = []
+        self._open_ports: dict = {}
 
     def add_component(self, component: Component) -> None:
         """ Add new component (node) to the graph """
