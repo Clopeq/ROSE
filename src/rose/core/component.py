@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 class Component(ABC):
     _input_ports:  tuple [str, ...] = ()  # just names of the parameters, the objects connections are defined in graph class
-    _output_ports: tuple [str, ...] = ()
+    _output_ports: dict = {}
 
     def __init__(self):
         pass
@@ -20,7 +20,7 @@ class Component(ABC):
         """ Evry child class must implement this """
 
     @property
-    def input_ports(self) -> dict:
+    def input_ports(self) -> tuple:
         return self._input_ports
 
     @property
